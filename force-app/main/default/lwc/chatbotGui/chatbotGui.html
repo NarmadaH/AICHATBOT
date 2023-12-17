@@ -1,8 +1,41 @@
+
 <template>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <h2>Chatbot</h2>
+        </div>
+        <div class="chatbot-body">
+            <template for:each={messages} for:item="message">
+                <div key={message.id} class="message">
+                    {message.text}
+                </div>
+            </template>
+        </div>
+        <div class="chatbot-footer">
+            <input type="text" placeholder="Type your message here..." oninput={handleInputChange} />
+            <button onclick={handleSendMessage}>Send</button>
+        </div>
+    </div>
+</template>
+
+
+
+<!-- 
+
+<template>
+
     <lightning-card title="AIChatBot" icon-name="custom:custom14">
+
+         <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+        <df-messenger
+          intent="WELCOME"
+          chat-title="Virtual_Assistant_V2"
+          agent-id="1e4227ae-e2da-404b-8ccc-dfaa184c7177"
+          language-code="en"
+        ></df-messenger> 
         
-        <h1>CHAT BOT</h1>
+        <h1>CHAT BOTT</h1>
         <p>AI based chat bot</p>
      
     </lightning-card>
-</template>
+</template> -->
