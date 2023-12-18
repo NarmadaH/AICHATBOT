@@ -1,22 +1,42 @@
 
 <template>
+    <lightning-button-icon icon-name="utility:chat" alternative-text="Chat" title="Chat"
+                       onclick={toggleChat} class="chat-toggle-icon large-icon">
+</lightning-button-icon>
+
+<template if:true={isChatVisible}>
     <div class="chatbot-container">
         <div class="chatbot-header">
-            <h2>Chatbot</h2>
+            <h2>Chatbot-Demo</h2>
+            <!-- <lightning-button-icon icon-name="utility:minimize_window" alternative-text="Minimize" title="Minimize"
+                                       onclick={toggleChat} class="minimize-button">
+                </lightning-button-icon> -->
         </div>
         <div class="chatbot-body">
             <template for:each={messages} for:item="message">
-                <div key={message.id} class="message">
+                <div key={message.id} class={message.cssClass}>
                     {message.text}
                 </div>
             </template>
+            <!-- Loading Indicator -->
+            <template if:true={isLoading}>
+                <div class="loading-indicator">Loading Your Answer...</div>
+            </template>
         </div>
         <div class="chatbot-footer">
-            <input type="text" placeholder="Type your message here..." oninput={handleInputChange} />
-            <button onclick={handleSendMessage}>Send</button>
+            <input type="text" placeholder="Type your message here..."
+                   oninput={handleInputChange} onkeypress={handleKeyPress} class="chat-input"/>
+            <template if:false={isSendDisabled}>
+                <button onclick={handleSendMessage} class="send-button">
+                    <lightning-icon class="custom-icon-color" icon-name="utility:send" size="small" alternative-text="Send"></lightning-icon>
+                </button>
+            </template>
         </div>
     </div>
 </template>
+
+</template>
+
 
 
 

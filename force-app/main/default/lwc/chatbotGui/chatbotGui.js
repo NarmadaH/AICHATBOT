@@ -3,28 +3,48 @@ import { LightningElement, track } from 'lwc';
 export default class ChatbotComponent extends LightningElement {
     @track message = '';
     @track messages = [];
+    @track isLoading = false;
+    @track isChatVisible = false;
 
     handleInputChange(event) {
         this.message = event.target.value;
     }
 
+    toggleChat() {
+        this.isChatVisible = !this.isChatVisible;
+    }
+
+    handleKeyPress(event) {
+        if (event.key === 'Enter' && this.message.trim() !== '') {
+            event.preventDefault();
+            this.handleSendMessage();
+        }
+    }
+
+    get isSendDisabled() {
+        return this.message.trim() === '';
+    }
+
     async handleSendMessage() {
         try {
-            // Add user's message to the messages array
-            this.addToMessages(`You: ${this.message}`);
+            this.isLoading = true;
+            this.addToMessages(`You: ${this.message}`, true);
 
-            // Send message to Dialogflow and process the response
             const responseText = await this.sendDialogflowRequest(this.message);
 
-            // Add Dialogflow's response to the messages array
-            this.addToMessages(`Bot: ${responseText}`);
+            this.addToMessages(`Agent: ${responseText}`, false);
         } catch (error) {
             console.error('Error in sending message:', error);
-            this.addToMessages('Error in getting response from the bot.');
+            this.addToMessages('Error in getting response from the bot.', false);
         } finally {
-            // Reset the input field
+            this.isLoading = false;
             this.resetInputField();
+            this.scrollToEnd(); 
         }
+    }
+
+    scrollToEnd() {
+        this.template.querySelector('.chatbot-body').scrollTop = this.template.querySelector('.chatbot-body').scrollHeight;
     }
 
     resetInputField() {
@@ -32,13 +52,14 @@ export default class ChatbotComponent extends LightningElement {
         this.template.querySelector('input[type="text"]').value = '';
     }
 
-    addToMessages(text) {
-        this.messages = [...this.messages, { id: this.messages.length + 1, text }];
+    addToMessages(messageText, isUserMessage) {
+        let cssClass = isUserMessage ? 'message user-message' : 'message bot-message';
+        this.messages = [...this.messages, { id: this.messages.length + 1, text: messageText, cssClass }];
     }
 
     async sendDialogflowRequest(userMessage) {
         const url = "https://dialogflow.googleapis.com/v2beta1/projects/first-demo-gbto/locations/global/agent/sessions/f8d64d41-5859-b9c1-f147-d1ab7ce31b72:detectIntent";
-        const accessToken = "ya29.c.c0AY_VpZglK2PowP9VqRUsHLHxWs8fHB3GWI6MUAeiP_trwxSHfogc6cvr5bwcNR38DMZ9ZZbzNA7hOy4BncECS3CdfRk7UIjn5ckrzH-qoBsJpEfPZWJW33JC9UMaUGIL08_3LVoQX3RZtE0b9Ad_2H8JMSeEJ8WvoJB3qinYRdzKXk8dFkNzu5R_NEhFdOxEIhp2ERpl4godwYgFzv6BdKKn4hg8oSwIWJboTRKvz5bXAbOmKRtfKVB2TyiacCWB1OPfpDuOfSkPbpNrgEdqpbSUC-a54RVGf7gSQ2D1jP5X8a79y09SFakvYy64CAR5uxjxKvAXP_88dTvMiMLusMofrh3qOMliU-qT3NajpM2GqJc3bU-dJd8T384PVg2IYXjgrc6VMQyu78kibMjRR5ixUz3vka7bmccQlWelz2sOF2YrlkRbBsRB5WWsBQiobVa5IJypUBnso9ZZd5gU7SIi_V_8uOOe5t6JjsOqQRBk_sZIWlenSejuZ9zeZUwehwxe1kFcvZ0gbcF24OxM5BB9Ml9t42p4tXrWj0t7ur10agriXcuY8cadzBd6vXmxlsjSizSVhk7Vj7OZZlXa0Wxg9Qqrbh9IcwMV0XjSpop8nzUV6hvhOv03l7ujz8l0SMUd8kMJ68pgruzU_oembp0aaOI5ubclngRiQij9RV46fXMUFu7tY_QhFx5FgI0gYsJ-UfMrm4BUh67hsxFo8R2VM2XX_mnQ0uwOebBuXjc5zv2lRmw5djvkYpOBXVjnS1Vqhv-m6bdB8Rps2tsZ1xmo0X9Rv1rt91hJQuvFrYb82VaZgQMa6tabxXUhQUizosooJaYe2a2OmO8fMXXbQ-RrildXB8FnjWhsx_dU5n3badYteWM32m4geVq93u-0niXySgSXsXIIZuuxhZs5suScb1Ib6WXhMMS-geUoXQdyvB47S0p-_l8WY3dfX4v8gFj4vl6w3V2SdlyV3jQY5uBri1_wWlWZtJOuilW3RR9haBaugJOBr-2"; // Replace with your actual access token
+        const accessToken = "ya29.c.c0AY_VpZjQhsweHl5HDObclV7qCel8Q7QmJd1u6TMqR-Zpgre_rDbz9hM3w-k5BOTu_aNudElpdUvTuQxO2HrBS2g__iZvZlzC-lTC9cvVJq10MdP2jyY2LtwMlA9btOLBijYhGUFl_cd3Qf8v0qyD5wsW1myEhGnLfHtyC_9R2NzRcmCorb2men4Nxfr68Mwc7Fp8W94yWP5sSWP3GgW3VGyHGzL11PgHQhEIrGWZNN0-rdBq8QxM_-IHT_3IK2ixstVA0Sa2MJC_hxtcjC6ZraCuCKFwM7baYXbAf-GDz72NKHXOEu1w3zZBeHPQkkUZYztNGZga1g8jRg8qIP2A_IpQziPl8eA7jQkW2-g4qcWm-CxeJKc5UOaNG385D-YwIOrimx-6s_Ic0Iq_64I8ie1wRnsgr2OW-6fp69JcxisUab2eM6_tfSgkxmbu-FjIOB298nJ1zR-Fva73V8I_7Mn-rdjr-61frVOiYVi8JtsYmu4Y8yZk0z28qF3khJ_46p7_BQ7c5oMW3f7OWvqrox5afibw6vbk754YYoqpgX8ihRipM_2SpRbM8e4fBZR0yqY2_sQS-q4hMFIp8jM2kI4e4mvQpzlU3foxFdxl4iJzrdpzvVW6fllicFlUaz3gd18fygSOjkh_jR4bFgt-Uhp2qSbpo5Ij25M57fwtUbRZ-j6lO46gJJWORQtZrii8kvpprZRgMdq8zUeeIabcW1o-RasMgd48Vp1p6SOXxyd-eM0X3YJe_gm1deX-w0esIlxcQSxsQ8Q4r4B5WVhx6Xhy2Z2nsZuzZQ06ty4wcShMJsUFObFQYBOm3ugv3V4n_BWtftQsxZI2X1kVk8F3lds2RpZeQy4bs_wJae9cJOVJybiX3a9MoufXcjfBtSbdz5beItoY71IsmZ_jRlaksymrzWmUcvla2Qweim_S3Qpg3xa6JorjBYkyrQaipz-6mix4rIWIV5gmqhagmoOp39-g1RRQ6MdWzQIahstJOajXr626IYX5u6p"; // Replace with your actual access token
 
         const headers = {
             "Content-Type": "application/json; charset=utf-8",
