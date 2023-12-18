@@ -8,9 +8,6 @@
     <div class="chatbot-container">
         <div class="chatbot-header">
             <h2>Chatbot-Demo</h2>
-            <!-- <lightning-button-icon icon-name="utility:minimize_window" alternative-text="Minimize" title="Minimize"
-                                       onclick={toggleChat} class="minimize-button">
-                </lightning-button-icon> -->
         </div>
         <div class="chatbot-body">
             <template for:each={messages} for:item="message">
@@ -18,7 +15,6 @@
                     {message.text}
                 </div>
             </template>
-            <!-- Loading Indicator -->
             <template if:true={isLoading}>
                 <div class="loading-indicator">Loading Your Answer...</div>
             </template>

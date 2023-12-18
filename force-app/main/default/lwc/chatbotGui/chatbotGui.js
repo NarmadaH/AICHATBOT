@@ -59,7 +59,7 @@ export default class ChatbotComponent extends LightningElement {
 
     async sendDialogflowRequest(userMessage) {
         const url = "https://dialogflow.googleapis.com/v2beta1/projects/first-demo-gbto/locations/global/agent/sessions/f8d64d41-5859-b9c1-f147-d1ab7ce31b72:detectIntent";
-        const accessToken = "ya29.c.c0AY_VpZjQhsweHl5HDObclV7qCel8Q7QmJd1u6TMqR-Zpgre_rDbz9hM3w-k5BOTu_aNudElpdUvTuQxO2HrBS2g__iZvZlzC-lTC9cvVJq10MdP2jyY2LtwMlA9btOLBijYhGUFl_cd3Qf8v0qyD5wsW1myEhGnLfHtyC_9R2NzRcmCorb2men4Nxfr68Mwc7Fp8W94yWP5sSWP3GgW3VGyHGzL11PgHQhEIrGWZNN0-rdBq8QxM_-IHT_3IK2ixstVA0Sa2MJC_hxtcjC6ZraCuCKFwM7baYXbAf-GDz72NKHXOEu1w3zZBeHPQkkUZYztNGZga1g8jRg8qIP2A_IpQziPl8eA7jQkW2-g4qcWm-CxeJKc5UOaNG385D-YwIOrimx-6s_Ic0Iq_64I8ie1wRnsgr2OW-6fp69JcxisUab2eM6_tfSgkxmbu-FjIOB298nJ1zR-Fva73V8I_7Mn-rdjr-61frVOiYVi8JtsYmu4Y8yZk0z28qF3khJ_46p7_BQ7c5oMW3f7OWvqrox5afibw6vbk754YYoqpgX8ihRipM_2SpRbM8e4fBZR0yqY2_sQS-q4hMFIp8jM2kI4e4mvQpzlU3foxFdxl4iJzrdpzvVW6fllicFlUaz3gd18fygSOjkh_jR4bFgt-Uhp2qSbpo5Ij25M57fwtUbRZ-j6lO46gJJWORQtZrii8kvpprZRgMdq8zUeeIabcW1o-RasMgd48Vp1p6SOXxyd-eM0X3YJe_gm1deX-w0esIlxcQSxsQ8Q4r4B5WVhx6Xhy2Z2nsZuzZQ06ty4wcShMJsUFObFQYBOm3ugv3V4n_BWtftQsxZI2X1kVk8F3lds2RpZeQy4bs_wJae9cJOVJybiX3a9MoufXcjfBtSbdz5beItoY71IsmZ_jRlaksymrzWmUcvla2Qweim_S3Qpg3xa6JorjBYkyrQaipz-6mix4rIWIV5gmqhagmoOp39-g1RRQ6MdWzQIahstJOajXr626IYX5u6p"; // Replace with your actual access token
+        const accessToken = "ya29.c.c0AY_VpZjcTC0bv8vJBGZzMaKfj21I69RlBhRGVr-nnGZInPdfi4MWkIDWf5R69nXdBTgX1o5AT1nisFLZStBouViF2tg52AVVF3r81dlEgptK3wQJDMN3wNyxfpq0IxT3ZPkjCZMbfCCnCLrWT43hSBpZhSOuXmM_WN7Eu_dxgBio4OIOv1rvDW0-WPncrSEw4Po0EhAMQZpmqah1tWSoCGNFg6R0yh-8XmhOOaurmibMsZWx5fPMwj1GBnsR0uG6SmAAGbNh1EPUN_s6bX_X4iYt1-gcaDUSWE1XVzcDm4__jMJgpfAzanua2Iqn20rxd3D60SadTaJMigW_igf9tYur8t7noUpAntlSk9GjCNnVpRDT6vvqtZG0N385DIcmg75OaJ1sXetYMtZ-Q3VXgY98BW2mOnuiMtWQnbxXQw79QO_RJtulaonkkarUX2bln6j2fxW-sBZ25eOQ8OjakqyX0Q2kkJFjjxXdfw95inla4W0acRBXYYspFhgVI8s6z51iRXqZjimseOOR0QZ9IMlcWvpJ9fcWpJRgnJ7fR48IBbW11lBeBu26g4qISkJa1nwsnYes9WszhlO8pg2g1qngV6vO4BxSeWo8I0krwF6-5SFRtWjsw6W5qnOk5344auFBm4BBip_dnagp4XO518SnlShqqYWw6eZzrso-Qa9abnogspxpzi7hQpctf_vVao505sanVzo-MasWI_ozg54fV27ku9xUhlx9eZq4z4quj2sfgBYRie0b4jFV4viYiltp90cOa9Vwf_nJrc9vwqO3j5-SSMX8yFxq9J2JMIJVrSt8ru7ywqab-7og_ufiz7pZ-vFVrjWs1s5kusbW6ljOr7UuqYnm66ORa5titfflR0JhBMhfWi_9f8riYaacBJf---UMOOa5RpbfRf9IU6wahhretaXV1xakSqwRy001ukkrzw9jUI2woZoxoeWg29my5Yl5gh5vaQx7xZeMtdnJ9l4qyaQR4RrzZ_vR97w0wzMqo092F-q"; // Replace with your actual access token
 
         const headers = {
             "Content-Type": "application/json; charset=utf-8",
@@ -95,13 +95,12 @@ export default class ChatbotComponent extends LightningElement {
 
             const data = await response.json();
 
-            // Return the fulfillment text from Dialogflow's response
             return data.queryResult && data.queryResult.fulfillmentText
                 ? data.queryResult.fulfillmentText
                 : 'No response received from Dialogflow.';
         } catch (error) {
             console.error('Error:', error);
-            throw error; // Rethrow the error to be caught by the caller
+            throw error;
         }
     }
 }
