@@ -3,28 +3,48 @@ import { LightningElement, track } from 'lwc';
 export default class ChatbotComponent extends LightningElement {
     @track message = '';
     @track messages = [];
+    @track isLoading = false;
+    @track isChatVisible = false;
 
     handleInputChange(event) {
         this.message = event.target.value;
     }
 
+    toggleChat() {
+        this.isChatVisible = !this.isChatVisible;
+    }
+
+    handleKeyPress(event) {
+        if (event.key === 'Enter' && this.message.trim() !== '') {
+            event.preventDefault();
+            this.handleSendMessage();
+        }
+    }
+
+    get isSendDisabled() {
+        return this.message.trim() === '';
+    }
+
     async handleSendMessage() {
         try {
-            // Add user's message to the messages array
-            this.addToMessages(`You: ${this.message}`);
+            this.isLoading = true;
+            this.addToMessages(`You: ${this.message}`, true);
 
-            // Send message to Dialogflow and process the response
             const responseText = await this.sendDialogflowRequest(this.message);
 
-            // Add Dialogflow's response to the messages array
-            this.addToMessages(`Bot: ${responseText}`);
+            this.addToMessages(`Agent: ${responseText}`, false);
         } catch (error) {
             console.error('Error in sending message:', error);
-            this.addToMessages('Error in getting response from the bot.');
+            this.addToMessages('Error in getting response from the bot.', false);
         } finally {
-            // Reset the input field
+            this.isLoading = false;
             this.resetInputField();
+            this.scrollToEnd(); 
         }
+    }
+
+    scrollToEnd() {
+        this.template.querySelector('.chatbot-body').scrollTop = this.template.querySelector('.chatbot-body').scrollHeight;
     }
 
     resetInputField() {
@@ -32,13 +52,14 @@ export default class ChatbotComponent extends LightningElement {
         this.template.querySelector('input[type="text"]').value = '';
     }
 
-    addToMessages(text) {
-        this.messages = [...this.messages, { id: this.messages.length + 1, text }];
+    addToMessages(messageText, isUserMessage) {
+        let cssClass = isUserMessage ? 'message user-message' : 'message bot-message';
+        this.messages = [...this.messages, { id: this.messages.length + 1, text: messageText, cssClass }];
     }
 
     async sendDialogflowRequest(userMessage) {
         const url = "https://dialogflow.googleapis.com/v2beta1/projects/first-demo-gbto/locations/global/agent/sessions/f8d64d41-5859-b9c1-f147-d1ab7ce31b72:detectIntent";
-        const accessToken = "ya29.c.c0AY_VpZglK2PowP9VqRUsHLHxWs8fHB3GWI6MUAeiP_trwxSHfogc6cvr5bwcNR38DMZ9ZZbzNA7hOy4BncECS3CdfRk7UIjn5ckrzH-qoBsJpEfPZWJW33JC9UMaUGIL08_3LVoQX3RZtE0b9Ad_2H8JMSeEJ8WvoJB3qinYRdzKXk8dFkNzu5R_NEhFdOxEIhp2ERpl4godwYgFzv6BdKKn4hg8oSwIWJboTRKvz5bXAbOmKRtfKVB2TyiacCWB1OPfpDuOfSkPbpNrgEdqpbSUC-a54RVGf7gSQ2D1jP5X8a79y09SFakvYy64CAR5uxjxKvAXP_88dTvMiMLusMofrh3qOMliU-qT3NajpM2GqJc3bU-dJd8T384PVg2IYXjgrc6VMQyu78kibMjRR5ixUz3vka7bmccQlWelz2sOF2YrlkRbBsRB5WWsBQiobVa5IJypUBnso9ZZd5gU7SIi_V_8uOOe5t6JjsOqQRBk_sZIWlenSejuZ9zeZUwehwxe1kFcvZ0gbcF24OxM5BB9Ml9t42p4tXrWj0t7ur10agriXcuY8cadzBd6vXmxlsjSizSVhk7Vj7OZZlXa0Wxg9Qqrbh9IcwMV0XjSpop8nzUV6hvhOv03l7ujz8l0SMUd8kMJ68pgruzU_oembp0aaOI5ubclngRiQij9RV46fXMUFu7tY_QhFx5FgI0gYsJ-UfMrm4BUh67hsxFo8R2VM2XX_mnQ0uwOebBuXjc5zv2lRmw5djvkYpOBXVjnS1Vqhv-m6bdB8Rps2tsZ1xmo0X9Rv1rt91hJQuvFrYb82VaZgQMa6tabxXUhQUizosooJaYe2a2OmO8fMXXbQ-RrildXB8FnjWhsx_dU5n3badYteWM32m4geVq93u-0niXySgSXsXIIZuuxhZs5suScb1Ib6WXhMMS-geUoXQdyvB47S0p-_l8WY3dfX4v8gFj4vl6w3V2SdlyV3jQY5uBri1_wWlWZtJOuilW3RR9haBaugJOBr-2"; // Replace with your actual access token
+        const accessToken = "ya29.c.c0AY_VpZjcTC0bv8vJBGZzMaKfj21I69RlBhRGVr-nnGZInPdfi4MWkIDWf5R69nXdBTgX1o5AT1nisFLZStBouViF2tg52AVVF3r81dlEgptK3wQJDMN3wNyxfpq0IxT3ZPkjCZMbfCCnCLrWT43hSBpZhSOuXmM_WN7Eu_dxgBio4OIOv1rvDW0-WPncrSEw4Po0EhAMQZpmqah1tWSoCGNFg6R0yh-8XmhOOaurmibMsZWx5fPMwj1GBnsR0uG6SmAAGbNh1EPUN_s6bX_X4iYt1-gcaDUSWE1XVzcDm4__jMJgpfAzanua2Iqn20rxd3D60SadTaJMigW_igf9tYur8t7noUpAntlSk9GjCNnVpRDT6vvqtZG0N385DIcmg75OaJ1sXetYMtZ-Q3VXgY98BW2mOnuiMtWQnbxXQw79QO_RJtulaonkkarUX2bln6j2fxW-sBZ25eOQ8OjakqyX0Q2kkJFjjxXdfw95inla4W0acRBXYYspFhgVI8s6z51iRXqZjimseOOR0QZ9IMlcWvpJ9fcWpJRgnJ7fR48IBbW11lBeBu26g4qISkJa1nwsnYes9WszhlO8pg2g1qngV6vO4BxSeWo8I0krwF6-5SFRtWjsw6W5qnOk5344auFBm4BBip_dnagp4XO518SnlShqqYWw6eZzrso-Qa9abnogspxpzi7hQpctf_vVao505sanVzo-MasWI_ozg54fV27ku9xUhlx9eZq4z4quj2sfgBYRie0b4jFV4viYiltp90cOa9Vwf_nJrc9vwqO3j5-SSMX8yFxq9J2JMIJVrSt8ru7ywqab-7og_ufiz7pZ-vFVrjWs1s5kusbW6ljOr7UuqYnm66ORa5titfflR0JhBMhfWi_9f8riYaacBJf---UMOOa5RpbfRf9IU6wahhretaXV1xakSqwRy001ukkrzw9jUI2woZoxoeWg29my5Yl5gh5vaQx7xZeMtdnJ9l4qyaQR4RrzZ_vR97w0wzMqo092F-q"; // Replace with your actual access token
 
         const headers = {
             "Content-Type": "application/json; charset=utf-8",
@@ -74,13 +95,12 @@ export default class ChatbotComponent extends LightningElement {
 
             const data = await response.json();
 
-            // Return the fulfillment text from Dialogflow's response
             return data.queryResult && data.queryResult.fulfillmentText
                 ? data.queryResult.fulfillmentText
                 : 'No response received from Dialogflow.';
         } catch (error) {
             console.error('Error:', error);
-            throw error; // Rethrow the error to be caught by the caller
+            throw error;
         }
     }
 }
