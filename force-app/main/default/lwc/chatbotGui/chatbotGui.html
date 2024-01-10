@@ -12,7 +12,27 @@
         <div class="chatbot-body">
             <template for:each={messages} for:item="message">
                 <div key={message.id} class={message.cssClass}>
-                    {message.text}
+                    <template if:false={message.isButton}>
+                        {message.text}
+                    </template>
+                    <template if:true={message.isLink}>
+                        <a href={message.url} onclick={handleLink} class="link-icon">
+                                <lightning-icon icon-name="utility:new_window" size="xx-small"></lightning-icon>
+                        </a>
+                    </template>                   
+                </div>
+            </template>
+            <template if:true={buttonMessages.length}>
+                <div class="button-container">
+                    <template if:true={buttonMessages.length}>
+                        <div class="button-container">
+                            <template for:each={buttonMessages} for:item="button">
+                                <button key={button.text} class="button-style" onclick={handleButtonClick}>
+                                    {button.text}
+                                </button>
+                            </template>
+                        </div>
+                    </template>
                 </div>
             </template>
             <template if:true={isLoading}>

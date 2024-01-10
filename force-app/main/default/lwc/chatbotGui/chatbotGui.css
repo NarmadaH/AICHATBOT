@@ -129,8 +129,45 @@
     font-family: sans-serif;
     font-size: 14px;
     background-color: #f76f6c;
-    align-self: flex-end; /* Align bot messages to the right */
+    align-self: flex-end;
     border-bottom-right-radius: 0;
+}
+
+.link-message {
+    font-family: sans-serif;
+    font-size: 14px;
+    background-color: #f76f6c;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+    margin-right: 20px;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.button-style {
+    min-width: 80px;    
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #e7f3fe;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    word-break: break-word;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: background-color 0.3s;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button-style:hover {
+    background-color: #bcd9f7;
 }
 
 .chatbot-footer input {
@@ -151,7 +188,7 @@
 .loading-indicator {
     text-align: center;
     padding: 10px;
-    color: #b9aca5; /* Choose a color that suits your design */
+    color: #b9aca5;
 }
 
 .send-button {
@@ -164,7 +201,7 @@
     justify-content: center;
 }
 .custom-icon-color {
-    --sds-c-icon-color-foreground-default: #E74343; /* Replace 'red' with your desired color */
+    --sds-c-icon-color-foreground-default: #E74343; 
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -173,9 +210,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .chat-input {
-    font-family: sans-serif; /* Replace with your desired font-family */
-    font-size: 14px; /* Adjust the size as needed */
+    font-family: sans-serif; 
+    font-size: 14px; 
     border: white;
 }
 
+.link-icon {
+    margin-left: 5px;
+    margin-bottom: 2px;
+    vertical-align: middle;
+}
 
+.testtt{
+    margin-bottom: 4px;
+}
