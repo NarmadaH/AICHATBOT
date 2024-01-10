@@ -62,9 +62,27 @@ public with sharing class GoogleAuthService {
         return token;
     }
     
+	private static String currentToken;
+    private static DateTime tokenExpirationTime;
+     
+    
     // new method
     @AuraEnabled
     public static String get_access_token(){
+        if (currentToken != null){
+            System.debug('Current token exist' + currentToken);
+        }
+        else
+        {
+            System.debug('Current token exist is null');
+        }
+        
+        // Check if the current token is valid
+        if(currentToken != null && DateTime.now() < tokenExpirationTime) {
+            System.debug('Current token is still valid!!');
+            System.debug('Returning current token'+ currentToken);
+            return currentToken;
+        }
         
         Http h = new Http();
         HttpRequest req = new HttpRequest();
@@ -123,6 +141,11 @@ public with sharing class GoogleAuthService {
                     String accessToken = parser.getText();
                     // Debug print the token
                     System.debug('Access Token: ' + accessToken);
+                    
+                    // Store the token and set its expiration time
+                    currentToken = accessToken;
+                    tokenExpirationTime = DateTime.now().addMinutes(10); // Assuming the token expires in 1 hour                    
+                    
                     // Return the access_token
                     return accessToken;
                 }
