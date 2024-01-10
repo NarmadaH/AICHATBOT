@@ -1,4 +1,5 @@
 import { LightningElement, track } from 'lwc';
+import get_access_token from '@salesforce/apex/GoogleAuthService.get_access_token';
 
 export default class ChatbotComponent extends LightningElement {
     @track message = '';
@@ -58,8 +59,10 @@ export default class ChatbotComponent extends LightningElement {
     }
 
     async sendDialogflowRequest(userMessage) {
-        const url = "https://dialogflow.googleapis.com/v2beta1/projects/first-demo-gbto/locations/global/agent/sessions/f8d64d41-5859-b9c1-f147-d1ab7ce31b72:detectIntent";
-        const accessToken = "ya29.c.c0AY_VpZjcTC0bv8vJBGZzMaKfj21I69RlBhRGVr-nnGZInPdfi4MWkIDWf5R69nXdBTgX1o5AT1nisFLZStBouViF2tg52AVVF3r81dlEgptK3wQJDMN3wNyxfpq0IxT3ZPkjCZMbfCCnCLrWT43hSBpZhSOuXmM_WN7Eu_dxgBio4OIOv1rvDW0-WPncrSEw4Po0EhAMQZpmqah1tWSoCGNFg6R0yh-8XmhOOaurmibMsZWx5fPMwj1GBnsR0uG6SmAAGbNh1EPUN_s6bX_X4iYt1-gcaDUSWE1XVzcDm4__jMJgpfAzanua2Iqn20rxd3D60SadTaJMigW_igf9tYur8t7noUpAntlSk9GjCNnVpRDT6vvqtZG0N385DIcmg75OaJ1sXetYMtZ-Q3VXgY98BW2mOnuiMtWQnbxXQw79QO_RJtulaonkkarUX2bln6j2fxW-sBZ25eOQ8OjakqyX0Q2kkJFjjxXdfw95inla4W0acRBXYYspFhgVI8s6z51iRXqZjimseOOR0QZ9IMlcWvpJ9fcWpJRgnJ7fR48IBbW11lBeBu26g4qISkJa1nwsnYes9WszhlO8pg2g1qngV6vO4BxSeWo8I0krwF6-5SFRtWjsw6W5qnOk5344auFBm4BBip_dnagp4XO518SnlShqqYWw6eZzrso-Qa9abnogspxpzi7hQpctf_vVao505sanVzo-MasWI_ozg54fV27ku9xUhlx9eZq4z4quj2sfgBYRie0b4jFV4viYiltp90cOa9Vwf_nJrc9vwqO3j5-SSMX8yFxq9J2JMIJVrSt8ru7ywqab-7og_ufiz7pZ-vFVrjWs1s5kusbW6ljOr7UuqYnm66ORa5titfflR0JhBMhfWi_9f8riYaacBJf---UMOOa5RpbfRf9IU6wahhretaXV1xakSqwRy001ukkrzw9jUI2woZoxoeWg29my5Yl5gh5vaQx7xZeMtdnJ9l4qyaQR4RrzZ_vR97w0wzMqo092F-q"; // Replace with your actual access token
+        const url = "https://dialogflow.googleapis.com/v2beta1/projects/housing-uavv/locations/global/agent/sessions/12345:detectIntent";
+        const accessToken = await get_access_token();
+        // console.log('Test 1000');
+        // console.log(accessToken);
 
         const headers = {
             "Content-Type": "application/json; charset=utf-8",
