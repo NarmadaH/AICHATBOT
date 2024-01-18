@@ -38,13 +38,13 @@ export default class ChatbotComponent extends LightningElement {
         try {
             this.isLoading = true;
             this.buttonMessages = [];
-            this.addToMessages(`You: ${this.message}`, true);
+            this.addToMessages(`${this.message}`, true);
     
             const messages = await this.sendDialogflowRequest(this.message);
     
             messages.forEach(msg => {
                 if (msg.type === 'text') {
-                    this.addToMessages(`Agent: ${msg.content}`, false);
+                    this.addToMessages(`${msg.content}`, false);
                 } else if (msg.type === 'link') {
                     this.addToMessages(msg.text, false, true, msg.url);
                 } else if (msg.type === 'button') {
@@ -154,11 +154,39 @@ export default class ChatbotComponent extends LightningElement {
 
     handleLink(event) {
         event.preventDefault();
-        openTab({
-            url: event.currentTarget.getAttribute('href'),
-            focus: true
-        }).catch((error) => {
-            console.log(error);
-        });
+        const url = event.currentTarget.getAttribute('href');
+        
+        window.open(' ','-blank');
     }
+
+    // handleLink() {
+    //     return new Promise((resolve, reject) => {
+    //         handleBatchAssessmentResponses({ assessmentRecordId: this.recordId })
+    //             .then(result => {
+    //                 this.AIPlanRecordId = result;
+    //                 if (this.AIPlanRecordId == null) {
+    //                     console.log('Error - Null plan ID');
+    //                 } else {
+    //                     this[NavigationMixin.GenerateUrl]({
+    //                         type: 'standard__recordPage',
+    //                         attributes: {
+    //                             recordId: this.AIPlanRecordId,
+    //                             objectApiName: 'Auto_Settlement_Plan__c',
+    //                             actionName: 'view'
+    //                         }
+    //                     }).then(url => {
+    //                         window.open(url, "_blank");
+    //                     });
+    //                     console.log('Navigating to the record page');
+    //                     resolve();
+    //                 }
+    //             })
+    //             .catch(error => {
+    //                 console.log('Error - Generating AI plan failed');
+    //                 this.modalError = 'Error - Generating AI plan failed';
+    //                 reject(error);
+    //             });
+    //     });
+    // }
+    
 }

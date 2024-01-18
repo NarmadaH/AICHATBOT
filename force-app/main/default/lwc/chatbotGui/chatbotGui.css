@@ -151,7 +151,7 @@
     background-color: white;
 }
 
-.button-style {
+/* .button-style {
     min-width: 80px;    
     margin: 5px;
     padding: 5px 10px;
@@ -164,7 +164,24 @@
     white-space: nowrap;
     transition: background-color 0.3s;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+} */
+
+.button-style {
+    margin: 5px;
+    padding: 5px 10px;
+    background-color: #e7f3fe; /* Button background color */
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    white-space: normal; /* Allows the text to wrap */
+    word-break: break-word; /* Breaks the words at the end of the line */
+    overflow: hidden; /* Hide the overflowed text */
+    transition: background-color 0.3s;
+    text-align: left;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 
 .button-style:hover {
     background-color: #bcd9f7;
