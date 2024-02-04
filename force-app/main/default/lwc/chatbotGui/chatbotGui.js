@@ -17,6 +17,39 @@ export default class ChatbotComponent extends LightningElement {
         this.isChatVisible = !this.isChatVisible;
     }
 
+    toggleChat() {
+        this.isChatVisible = !this.isChatVisible;
+    
+        if (this.isChatVisible && this.messages.length === 0) {
+            this.sendDefaultMessage();
+        }
+    }
+    
+    async sendDefaultMessage() {
+        const defaultMessage = 'howdy';
+    
+        try {
+            this.isLoading = true;
+            
+            const messages = await this.sendDialogflowRequest(defaultMessage);
+            
+            messages.forEach(msg => {
+                if (msg.type === 'text') {
+                    this.addToMessages(`${msg.content}`, false);
+                } else if (msg.type === 'link') {
+                    this.addToMessages(msg.text, false, true, msg.url);
+                } else if (msg.type === 'button') {
+                    this.addToMessages(msg.text, false, false, '', true);
+                }
+            });
+        } catch (error) {
+            this.addToMessages('Error in getting response from the bot.', false);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+    
+
     handleKeyPress(event) {
         if (event.key === 'Enter' && this.message.trim() !== '') {
             event.preventDefault();
@@ -78,11 +111,24 @@ export default class ChatbotComponent extends LightningElement {
         } else if (isButton) {
             cssClass = 'message button-message';
         }
-        this.messages = [...this.messages, { id: this.messages.length + 1, text: messageText, cssClass, isLink, url, isButton }];
+        const formattedMessageText = messageText.replace(/\n/g, '<br>');
+        this.messages = [...this.messages, { id: this.messages.length + 1, text: formattedMessageText, cssClass, isLink, url, isButton }];
     }
+    
+    renderedCallback() {
+        this.messages.forEach((message) => {
+            if (!message.isButton && !message.isLink) {
+                const messageElement = this.template.querySelector(`[data-id="${message.id}"]`);
+                if (messageElement) {
+                    messageElement.innerHTML = message.text;
+                }
+            }
+        });
+    }    
+    
 
     async sendDialogflowRequest(userMessage) {
-        const url = "https://dialogflow.googleapis.com/v2beta1/projects/housing-uavv/locations/global/agent/sessions/12345:detectIntent";
+        const url = "https://dialogflow.googleapis.com/v2beta1/projects/ymca-ahc9/locations/global/agent/sessions/12345:detectIntent";
         const accessToken = await get_access_token();
 
         const headers = {
@@ -154,39 +200,8 @@ export default class ChatbotComponent extends LightningElement {
 
     handleLink(event) {
         event.preventDefault();
-        const url = event.currentTarget.getAttribute('href');
-        
-        window.open(' ','-blank');
+        const url = event.currentTarget.getAttribute('href');        
+        window.open(url, "_blank");
     }
-
-    // handleLink() {
-    //     return new Promise((resolve, reject) => {
-    //         handleBatchAssessmentResponses({ assessmentRecordId: this.recordId })
-    //             .then(result => {
-    //                 this.AIPlanRecordId = result;
-    //                 if (this.AIPlanRecordId == null) {
-    //                     console.log('Error - Null plan ID');
-    //                 } else {
-    //                     this[NavigationMixin.GenerateUrl]({
-    //                         type: 'standard__recordPage',
-    //                         attributes: {
-    //                             recordId: this.AIPlanRecordId,
-    //                             objectApiName: 'Auto_Settlement_Plan__c',
-    //                             actionName: 'view'
-    //                         }
-    //                     }).then(url => {
-    //                         window.open(url, "_blank");
-    //                     });
-    //                     console.log('Navigating to the record page');
-    //                     resolve();
-    //                 }
-    //             })
-    //             .catch(error => {
-    //                 console.log('Error - Generating AI plan failed');
-    //                 this.modalError = 'Error - Generating AI plan failed';
-    //                 reject(error);
-    //             });
-    //     });
-    // }
     
 }

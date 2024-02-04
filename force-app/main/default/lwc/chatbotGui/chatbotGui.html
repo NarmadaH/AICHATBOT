@@ -13,7 +13,12 @@
             <template for:each={messages} for:item="message">
                 <div key={message.id} class={message.cssClass}>
                     <template if:false={message.isButton}>
-                        {message.text}
+                        <template if:false={message.isLink}>
+                            <span lwc:dom="manual" class="message-text" data-id={message.id}></span>
+                        </template>
+                        <template if:true={message.isLink}>
+                            {message.text}
+                        </template>
                     </template>
                     <template if:true={message.isLink}>
                         <a href={message.url} onclick={handleLink} class="link-icon">
