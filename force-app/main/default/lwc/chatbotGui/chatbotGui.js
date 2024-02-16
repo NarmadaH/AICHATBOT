@@ -61,6 +61,10 @@ export default class ChatbotComponent extends LightningElement {
         return this.message.trim() === '';
     }
 
+    get isSendInputDisabled() {
+        return true;
+    }
+
     handleButtonClick(event) {
         this.message = event.target.textContent;
         this.handleSendMessage();
