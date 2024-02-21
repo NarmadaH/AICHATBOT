@@ -134,7 +134,7 @@ export default class ChatbotComponent extends LightningElement {
     async sendDialogflowRequest(userMessage) {
         const url = "https://dialogflow.googleapis.com/v2beta1/projects/ymca-ahc9/locations/global/agent/sessions/12345:detectIntent";
         const accessToken = await get_access_token();
-
+        
         const headers = {
             "Content-Type": "application/json; charset=utf-8",
             "Authorization": `Bearer ${accessToken}`
