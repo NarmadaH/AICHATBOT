@@ -204,6 +204,36 @@
     }
 }
 
+@media (min-width: 768px) and (max-width: 1024px) {
+    .chat-toggle-icon {
+        bottom: 50px;
+    }
+    .chatbot-container {
+        width: 50vw; 
+        height: 70vh;
+        bottom: 70px;
+        right: 50px; 
+    }
+    .user-message {
+        font-size: 14px;
+    }
+    
+    .bot-message {
+        font-size: 14px;    
+    }
+    .button-style {
+        font-size: 14px;
+ 
+    }
+    .link-message {
+        font-size: 14px;
+
+    }
+    .chatbot-header {
+        font-size: 17px;
+    }
+  }
+
 
 .button-style:hover {
     background-color: #bcd9f7;
