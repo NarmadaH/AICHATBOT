@@ -1,10 +1,13 @@
 import { LightningElement, track } from 'lwc';
+import { openTab } from 'lightning/platformWorkspaceApi';
+import get_access_token from '@salesforce/apex/GoogleAuthService.get_access_token';
 
 export default class ChatbotComponent extends LightningElement {
     @track message = '';
     @track messages = [];
     @track isLoading = false;
     @track isChatVisible = false;
+    @track buttonMessages = [];
 
     handleInputChange(event) {
         this.message = event.target.value;
@@ -13,6 +16,39 @@ export default class ChatbotComponent extends LightningElement {
     toggleChat() {
         this.isChatVisible = !this.isChatVisible;
     }
+
+    toggleChat() {
+        this.isChatVisible = !this.isChatVisible;
+    
+        if (this.isChatVisible && this.messages.length === 0) {
+            this.sendDefaultMessage();
+        }
+    }
+    
+    async sendDefaultMessage() {
+        const defaultMessage = 'howdy';
+    
+        try {
+            this.isLoading = true;
+            
+            const messages = await this.sendDialogflowRequest(defaultMessage);
+            
+            messages.forEach(msg => {
+                if (msg.type === 'text') {
+                    this.addToMessages(`${msg.content}`, false);
+                } else if (msg.type === 'link') {
+                    this.addToMessages(msg.text, false, true, msg.url);
+                } else if (msg.type === 'button') {
+                    this.addToMessages(msg.text, false, false, '', true);
+                }
+            });
+        } catch (error) {
+            this.addToMessages('Error in getting response from the bot.', false);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+    
 
     handleKeyPress(event) {
         if (event.key === 'Enter' && this.message.trim() !== '') {
@@ -25,14 +61,33 @@ export default class ChatbotComponent extends LightningElement {
         return this.message.trim() === '';
     }
 
+    get isSendInputDisabled() {
+        return true;
+    }
+
+    handleButtonClick(event) {
+        this.message = event.target.textContent;
+        this.handleSendMessage();
+    }
+
+
     async handleSendMessage() {
         try {
             this.isLoading = true;
-            this.addToMessages(`You: ${this.message}`, true);
-
-            const responseText = await this.sendDialogflowRequest(this.message);
-
-            this.addToMessages(`Agent: ${responseText}`, false);
+            this.buttonMessages = [];
+            this.addToMessages(`${this.message}`, true);
+    
+            const messages = await this.sendDialogflowRequest(this.message);
+    
+            messages.forEach(msg => {
+                if (msg.type === 'text') {
+                    this.addToMessages(`${msg.content}`, false);
+                } else if (msg.type === 'link') {
+                    this.addToMessages(msg.text, false, true, msg.url);
+                } else if (msg.type === 'button') {
+                    this.addToMessages(msg.text, false, false, '', true);
+                }
+            });
         } catch (error) {
             console.error('Error in sending message:', error);
             this.addToMessages('Error in getting response from the bot.', false);
@@ -52,15 +107,34 @@ export default class ChatbotComponent extends LightningElement {
         this.template.querySelector('input[type="text"]').value = '';
     }
 
-    addToMessages(messageText, isUserMessage) {
+    
+    addToMessages(messageText, isUserMessage, isLink = false, url = '', isButton = false) {
         let cssClass = isUserMessage ? 'message user-message' : 'message bot-message';
-        this.messages = [...this.messages, { id: this.messages.length + 1, text: messageText, cssClass }];
+        if (isLink) {
+            cssClass = 'message link-message';
+        } else if (isButton) {
+            cssClass = 'message button-message';
+        }
+        const formattedMessageText = messageText.replace(/\n/g, '<br>');
+        this.messages = [...this.messages, { id: this.messages.length + 1, text: formattedMessageText, cssClass, isLink, url, isButton }];
     }
+    
+    renderedCallback() {
+        this.messages.forEach((message) => {
+            if (!message.isButton && !message.isLink) {
+                const messageElement = this.template.querySelector(`[data-id="${message.id}"]`);
+                if (messageElement) {
+                    messageElement.innerHTML = message.text;
+                }
+            }
+        });
+    }    
+    
 
     async sendDialogflowRequest(userMessage) {
-        const url = "https://dialogflow.googleapis.com/v2beta1/projects/first-demo-gbto/locations/global/agent/sessions/f8d64d41-5859-b9c1-f147-d1ab7ce31b72:detectIntent";
-        const accessToken = "ya29.c.c0AY_VpZjcTC0bv8vJBGZzMaKfj21I69RlBhRGVr-nnGZInPdfi4MWkIDWf5R69nXdBTgX1o5AT1nisFLZStBouViF2tg52AVVF3r81dlEgptK3wQJDMN3wNyxfpq0IxT3ZPkjCZMbfCCnCLrWT43hSBpZhSOuXmM_WN7Eu_dxgBio4OIOv1rvDW0-WPncrSEw4Po0EhAMQZpmqah1tWSoCGNFg6R0yh-8XmhOOaurmibMsZWx5fPMwj1GBnsR0uG6SmAAGbNh1EPUN_s6bX_X4iYt1-gcaDUSWE1XVzcDm4__jMJgpfAzanua2Iqn20rxd3D60SadTaJMigW_igf9tYur8t7noUpAntlSk9GjCNnVpRDT6vvqtZG0N385DIcmg75OaJ1sXetYMtZ-Q3VXgY98BW2mOnuiMtWQnbxXQw79QO_RJtulaonkkarUX2bln6j2fxW-sBZ25eOQ8OjakqyX0Q2kkJFjjxXdfw95inla4W0acRBXYYspFhgVI8s6z51iRXqZjimseOOR0QZ9IMlcWvpJ9fcWpJRgnJ7fR48IBbW11lBeBu26g4qISkJa1nwsnYes9WszhlO8pg2g1qngV6vO4BxSeWo8I0krwF6-5SFRtWjsw6W5qnOk5344auFBm4BBip_dnagp4XO518SnlShqqYWw6eZzrso-Qa9abnogspxpzi7hQpctf_vVao505sanVzo-MasWI_ozg54fV27ku9xUhlx9eZq4z4quj2sfgBYRie0b4jFV4viYiltp90cOa9Vwf_nJrc9vwqO3j5-SSMX8yFxq9J2JMIJVrSt8ru7ywqab-7og_ufiz7pZ-vFVrjWs1s5kusbW6ljOr7UuqYnm66ORa5titfflR0JhBMhfWi_9f8riYaacBJf---UMOOa5RpbfRf9IU6wahhretaXV1xakSqwRy001ukkrzw9jUI2woZoxoeWg29my5Yl5gh5vaQx7xZeMtdnJ9l4qyaQR4RrzZ_vR97w0wzMqo092F-q"; // Replace with your actual access token
-
+        const url = "https://dialogflow.googleapis.com/v2beta1/projects/testagent-shxr/locations/global/agent/sessions/12345:detectIntent";
+        const accessToken = await get_access_token();
+        
         const headers = {
             "Content-Type": "application/json; charset=utf-8",
             "Authorization": `Bearer ${accessToken}`
@@ -88,19 +162,50 @@ export default class ChatbotComponent extends LightningElement {
                 headers: headers,
                 body: JSON.stringify(body)
             });
-
+    
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
+    
             const data = await response.json();
+            let messages = [];
+            let buttonMessages = [];
 
-            return data.queryResult && data.queryResult.fulfillmentText
-                ? data.queryResult.fulfillmentText
-                : 'No response received from Dialogflow.';
+            if (data.queryResult && data.queryResult.fulfillmentMessages) {
+                data.queryResult.fulfillmentMessages.forEach(message => {
+                    if (message.text && message.text.text) {
+                        messages.push({ type: 'text', content: message.text.text[0] });
+                    } else if (message.payload && message.payload.richContent) {
+                        message.payload.richContent[0].forEach(content => {
+                            if (content.options) {
+                                content.options.forEach(option => {
+                                    if (option.link) {
+                                        messages.push({ type: 'link', text: option.text, url: option.link });
+                                    } else {
+                                    const isButtonExist = buttonMessages.find(button => button.text === option.text);
+                                        if (!isButtonExist) {
+                                            buttonMessages.push({ text: option.text });
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            this.buttonMessages = buttonMessages;
+            return messages;
         } catch (error) {
             console.error('Error:', error);
             throw error;
         }
     }
+
+    handleLink(event) {
+        event.preventDefault();
+        const url = event.currentTarget.getAttribute('href');        
+        window.open(url, "_blank");
+    }
+    
 }
